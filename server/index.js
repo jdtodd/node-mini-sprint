@@ -12,11 +12,11 @@ const port = 3000;
 
 // TODO: Fill with strings of your favorite quotes :)
 const quotes = [
-  'one',
-  'two',
-  'three',
-  'four',
-  'five'
+  'Service to others is the rent you pay for your room here on earth. - Muhammad Ali',
+  'The only thing I know is that I know nothing - Socrates',
+  'He who is not courageous enough to take risks will accomplish nothing in life. - Muhammad Ali',
+  'Be the change that you wish to see in the world. - Mahatma Ghandi',
+  'If only I had known, I should have become a watchmaker. - Albert Einstein'
 ];
 
 //Utility Function to return a random integer
@@ -37,13 +37,30 @@ const handleRequest = function(req, res) {
   }
 
   // TODO: GET ONE
-  if ((req.url == '/quote/' || req.url == '/quote') && req.method == "FILL ME IN") {
-    //YOUR CODE HERE
-
+  if ((req.url == '/quote/' || req.url == '/quote') && req.method == "GET") {
+    // if get request, need to get random int and respond with quote at random int index
+    console.log('Sending quote');
+    var randIndex = getRandomInt(0, quotes.length)
+    res.writeHead(200);
+    res.end(JSON.stringify(quotes[randIndex]));
   }
   // TODO: POST/CREATE
-  else if ((req.url == 'FILL ME IN' || req.url == 'FILL ME IN') && req.method == "FILL ME IN") {
-    //YOUR CODE HERE
+  else if ((req.url == '/quote/' || req.url == '/quote') && req.method == "POST") {
+    var newQuote = '';
+    req.on('data', (chunk) => {
+      newQuote += chunk.toString();
+    })
+    req.on('end', () => {
+      console.log('New Quote Recieved');
+      newQuote = JSON.parse(newQuote);
+      var quoteString = ''
+      for (var key in newQuote) {
+        quoteString = newQuote[key];
+      }
+      quotes.push(quoteString);
+      res.writeHead(201);
+      res.end()
+    })
   }
 
 //CATCH ALL ROUTE
