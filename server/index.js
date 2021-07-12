@@ -37,28 +37,27 @@ const handleRequest = function(req, res) {
   }
 
   // TODO: GET ONE
-  if ((req.url == '/quote/' || req.url == '/quote') && req.method == "GET") {
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, headers);
+    res.end();
+  } else if ((req.url == '/quote/' || req.url == '/quote') && req.method == "GET") {
     // if get request, need to get random int and respond with quote at random int index
     console.log('Sending quote');
     var randIndex = getRandomInt(0, quotes.length)
-    res.writeHead(200);
+    res.writeHead(200, headers);
     res.end(JSON.stringify(quotes[randIndex]));
   }
   // TODO: POST/CREATE
   else if ((req.url == '/quote/' || req.url == '/quote') && req.method == "POST") {
     var newQuote = '';
     req.on('data', (chunk) => {
-      newQuote += chunk.toString();
+      newQuote = newQuote + chunk.toString();
     })
     req.on('end', () => {
       console.log('New Quote Recieved');
       newQuote = JSON.parse(newQuote);
-      var quoteString = ''
-      for (var key in newQuote) {
-        quoteString = newQuote[key];
-      }
-      quotes.push(quoteString);
-      res.writeHead(201);
+      quotes.push(newQuote);
+      res.writeHead(201, headers);
       res.end()
     })
   }

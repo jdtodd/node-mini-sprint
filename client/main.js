@@ -13,8 +13,10 @@ $(document).ready(function() {
   function getQuote(){
     // Make ajax GET request to server at url /quotes
     // on success, append recieved quote to dom. Need to use JSON.parse when receiving.
-    $.ajax('/quote/', {
+    $.ajax({
+      url: 'http://localhost:3000/quote',
       type: 'GET',
+      contentType: 'application/json',
       success: function(data) {
         data = JSON.parse(data)
         $('#quote').text(data);
@@ -22,12 +24,16 @@ $(document).ready(function() {
       error: function(data) {
         console.log('There was an error receiving the response' + data + ': did not render correctly')
       }
-    })
+    });
   }
 
   function addQuote(quote){
-
     //YOUR CODE HERE, Add a POST request
-
+    $.ajax({
+      url: 'http://localhost:3000/quote',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(quote)
+    })
   }
 });
