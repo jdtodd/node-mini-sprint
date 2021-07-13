@@ -1,4 +1,10 @@
-const http = require('http');
+
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser')
+const cors = require('cors');
+app.use(cors());
+app.use(express.json());
 
 //headers to allows CORS requests
 const headers = {
@@ -27,51 +33,26 @@ function getRandomInt(min, max) {
 }
 
 const handleRequest = function(req, res) {
-  console.log(`Endpoint: ${req.url} Method: ${req.method}`);
+  console.log(`Endpoint: ${req.url} Method: ${req.method}`)
+};
 
   // redirect users to /quote if they try to hit the homepage. This should already work, no changes needed
-  if (req.url == '/') {
-    console.log('redirecting');
-    res.writeHead(301, {...headers, Location: `http://localhost:${port}/quote`}) //redirect to quote
+
+  app.options(headers);
+
+  app.get('/quote', (req, res) => {
+    res.send(JSON.stringify(quotes[getRandomInt(0, quotes.length)]));
+    res.end()
+  });
+
+  app.post('/quote', (req, res) => {
+    console.log(JSON.parse(req.body));
+    res.sendStatus(201);
+    console.log('Posted');
     res.end();
-  }
+  })
 
-  // TODO: GET ONE
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, headers);
-    res.end();
-  } else if ((req.url == '/quote/' || req.url == '/quote') && req.method == "GET") {
-    // if get request, need to get random int and respond with quote at random int index
-    console.log('Sending quote');
-    var randIndex = getRandomInt(0, quotes.length)
-    res.writeHead(200, headers);
-    res.end(JSON.stringify(quotes[randIndex]));
-  }
-  // TODO: POST/CREATE
-  else if ((req.url == '/quote/' || req.url == '/quote') && req.method == "POST") {
-    var newQuote = '';
-    req.on('data', (chunk) => {
-      newQuote = newQuote + chunk.toString();
-    })
-    req.on('end', () => {
-      console.log('New Quote Recieved');
-      newQuote = JSON.parse(newQuote);
-      quotes.push(newQuote);
-      res.writeHead(201, headers);
-      res.end()
-    })
-  }
 
-//CATCH ALL ROUTE
-  else {
-    res.writeHead(404,headers);
-    res.end('Page not found');
-
-  }
-}
-
-const server = http.createServer(handleRequest);
-server.listen(port);
-
-console.log('Server is running in the terminal!');
-console.log(`Listening on http://localhost:${port}`);
+  app.listen(3000, () => {
+    console.log('Listening on port ' + port);
+  })

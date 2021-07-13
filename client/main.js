@@ -33,7 +33,8 @@ $(document).ready(function() {
       url: 'http://localhost:3000/quote',
       type: 'POST',
       contentType: 'application/json',
-      data: JSON.stringify(quote)
+      data: JSON.stringify(quote),
+      success: getQuote()
     })
   }
 });
