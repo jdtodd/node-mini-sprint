@@ -1,7 +1,6 @@
 
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser')
 const cors = require('cors');
 app.use(cors());
 app.use(express.json());
@@ -46,7 +45,8 @@ const handleRequest = function(req, res) {
   });
 
   app.post('/quote', (req, res) => {
-    console.log(JSON.parse(req.body));
+    console.log(req.body);
+    quotes.push(req.body.quote);
     res.sendStatus(201);
     console.log('Posted');
     res.end();

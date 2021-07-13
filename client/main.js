@@ -29,12 +29,16 @@ $(document).ready(function() {
 
   function addQuote(quote){
     //YOUR CODE HERE, Add a POST request
+    var quoteObj = {"quote": quote}
     $.ajax({
       url: 'http://localhost:3000/quote',
       type: 'POST',
+      data: JSON.stringify(quoteObj),
       contentType: 'application/json',
-      data: JSON.stringify(quote),
-      success: getQuote()
+      success: getQuote(),
+      error: (err) => {
+        console.log('There was an error: ' + err + ' Data not posted to server')
+      }
     })
   }
 });
