@@ -1,4 +1,4 @@
-
+const connection = require('./db/index.js');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -25,6 +25,16 @@ const quotes = [
   'If only I had known, I should have become a watchmaker. - Albert Einstein'
 ];
 
+for (var i = 0; i < quotes.length; i++) {
+  var quote = { 'id': i + 1, 'quote': quotes[i] };
+  connection.query(
+    `INSERT INTO quotes (id, quote) VALUES ('${quote.id}', '${quote.quote}') ON DUPLICATE KEY UPDATE quote = '${quote.quote}'`,
+    quote, (err, results) => {
+      if (err) {
+        console.error(err);
+      }
+    })
+}
 //Utility Function to return a random integer
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -32,27 +42,44 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
-const handleRequest = function(req, res) {
+const handleRequest = function (req, res) {
   console.log(`Endpoint: ${req.url} Method: ${req.method}`)
 };
 
-  // redirect users to /quote if they try to hit the homepage. This should already work, no changes needed
+// redirect users to /quote if they try to hit the homepage. This should already work, no changes needed
 
-  app.options(headers);
-
-  app.get('/quote', (req, res) => {
-    res.send(JSON.stringify(quotes[getRandomInt(0, quotes.length)]));
-    res.end()
-  });
-
-  app.post('/quote', (req, res) => {
-    quotes.push(req.body.quote);
-    res.sendStatus(201);
-    console.log('Posted');
-    res.end();
+app.get('/quote', (req, res) => {
+  var index;
+  connection.query('SELECT MAX(id) from quotes', function (err, result) {
+    if (err) {
+      console.error(err);
+    } else {
+      index = getRandomInt(0, result[0]['MAX(id)']);
+      connection.query(`SELECT quote FROM quotes WHERE id = '${index}'`, function (err, results) {
+        if (err) {
+          console.error(err);
+          res.sendStatus(404);
+        } else {
+          res.send(results[0].quote);
+        }
+      })
+    }
   })
+});
 
-
-  app.listen(3000, () => {
-    console.log('Listening on port ' + port);
+app.post('/quote', (req, res) => {
+  connection.query(`INSERT INTO quotes SET quote = '${req.body.quote}'`, (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500);
+    } else {
+      res.status(201);
+      res.end();
+    }
   })
+})
+
+
+app.listen(3000, () => {
+  console.log('Listening on port ' + port);
+})
